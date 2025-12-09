@@ -37,7 +37,7 @@ app.get("/stream/:driver_id", (req: Request, res: Response) => {
   let lastSentTimestamp: string;
 
   if (since) {
-    // Send historical updates from `since`
+    // Send updates from `since`
     const sinceDate = new Date(since);
     const filteredHistory = history.filter(
       (loc) => new Date(loc.timestamp) > sinceDate
@@ -51,7 +51,7 @@ app.get("/stream/:driver_id", (req: Request, res: Response) => {
       ? filteredHistory[filteredHistory.length - 1].timestamp
       : since;
   } else {
-    // No `since` provided → send latest location if exists
+    // No `since`
     if (history.length) {
       const latest = history[history.length - 1];
       res.write(`data: ${JSON.stringify(latest)}\n\n`);
@@ -61,7 +61,6 @@ app.get("/stream/:driver_id", (req: Request, res: Response) => {
     }
   }
 
-  // Add subscriber
   const subscriber: Subscriber = { res, lastSentTimestamp };
   if (!subscribers.has(driver_id)) subscribers.set(driver_id, new Set());
   subscribers.get(driver_id)!.add(subscriber);
@@ -73,7 +72,7 @@ app.get("/stream/:driver_id", (req: Request, res: Response) => {
   });
 });
 
-// Endpoint to receive driver location updates from Splyt
+// Endpoint to receive driver location updates
 app.post("/event", (req: Request, res: Response) => {
   const { data, event } = req.body;
 
